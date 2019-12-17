@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<launch>
+  <include 
+  file = "$(find turtlebot_gazebo)/launch/turtlebot_world.launch">
+  <arg name = "world_file" value =  "$(find busroute)/map/ExploreMap1.world"/>
+  </include>
+  <arg name="3d_sensor" default="$(env TURTLEBOT_3D_SENSOR)"/>  <!-- r200, kinect, asus_xtion_pro -->
+  <arg name="custom_gmapping_launch_file" default="$(find busroute)/launch/includes/gmapping/$(arg 3d_sensor)_gmapping.launch.xml"/>
+  <include file="$(arg custom_gmapping_launch_file)"/>
+
+  <include file="$(find busroute)/launch/includes/move_base.launch.xml" />
+  <include file="$(find kobuki_auto_docking)/launch/minimal.launch" />
+  <node name="robot_pose_publisher" pkg="robot_pose_publisher" type="robot_pose_publisher"/>
+  <node name="soundplay" pkg="sound_play" type="soundplay_node.py" />
+<node pkg="busroute" type="explore" name="explore">
+  <param name="robot_base_frame" value="base_link"/>
+  <param name="costmap_topic" value="/map"/>
+  <param name="costmap_updates_topic" value="/map_updates"/>
+  <param name="visualize" value="true"/>
+  <param name="planner_frequency" value="0.33"/>
+  <param name="progress_timeout" value="30.0"/>
+  <param name="potential_scale" value="3.0"/>
+  <param name="orientation_scale" value="0.0"/>
+  <param name="gain_scale" value="1.0"/>
+  <param name="transform_tolerance" value="0.3"/>
+  <param name="min_frontier_size" value="0.60"/>
+</node>
+<node pkg="busroute" type="navi" name="navi" output="screen"/>
+<node name="$(anon rviz)" pkg="rviz" type="rviz" args="-d $(find busroute)/config/busrouting.rviz"/>
+</launch>
